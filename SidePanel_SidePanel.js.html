@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SidePanel/SidePanel.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SidePanel/SidePanel.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import {
+	initState
+} from './blockInitState';
+import './SidePanel.css';
+import {
+	onChangeLinkSocialMedia,
+	toggleCheckBoxSocialMedia
+} from '../Components/SocialMediaIcon';
+import Button, {
+	onChangeLink
+} from '../Components/Button';
+import {
+	createBlock
+} from './structureDefinitionUtil';
+import {
+	onChangeFormLink
+} from '../Components/Form';
+import {
+	uploadImageGIF,
+	onChangeVideo,
+	fileBtnClick,
+	onChangeImgGIFLink
+} from '../Components/Multimedia';
+import {
+	clone,
+	rgb2hex,
+	changeDivColor,
+	changePanel
+} from '../helperFunctions';
+import {
+	enableRipple
+} from '@syncfusion/ej2-base';
+import {
+	ButtonComponent
+} from '@syncfusion/ej2-react-buttons';
+import {
+	ColorPickerComponent
+} from '@syncfusion/ej2-react-inputs';
+
+enableRipple(true);
+
+/**
+ * Represents the entire left panel of the application. Contains the block-structures and styling options and handles the placement of all the elements.
+ *
+ * @class SidePanel
+ * @extends {React.Component}
+ */
+class SidePanel extends React.Component {
+	uniq_id_counter = 21;
+	global_fin_id = -1;
+
+	state = initState;
+
+	/**
+	 * Duplicates a given block.
+	 *
+	 * @param {*} block Block to be dupliated
+	 * @return {*} Copy of the block
+	 * @memberof SidePanel
+	 */
+	duplicateBlock(block) {
+		let copy = {}
+		copy.uniq_id = this.uniq_id_counter
+		for (const attr in block) {
+			if (block.hasOwnProperty(attr) &amp;&amp; attr != 'uniq_id' &amp;&amp; attr != 'pos_fin_id' &amp;&amp; attr != 'category') {
+				console.log(attr)
+				copy[attr] = clone(block[attr]);
+			}
+		}
+		copy.pos_fin_id = -1;
+		copy.category = "inPanel"
+		if (block.hasOwnProperty('carousel')) {
+			console.log(block.carousel.specName)
+		}
+		return copy
+	}
+
+	onDragStart(ev, id) {
+		console.log('dragstart:', id);
+		ev.dataTransfer.setData("id", id);
+	}
+
+	onDragOver(ev) {
+		ev.preventDefault();
+	}
+
+	onDrop(ev, cat) {
+		let id = ev.dataTransfer.getData("id");
+
+		let new_blocks = [];
+		let blocks = this.state.blocks.filter((block) => {
+			let original_cat = block.category;
+			if (block.uniq_id == id) {
+				block.category = cat;
+				this.global_fin_id += 1;
+				block.pos_fin_id = this.global_fin_id;
+				if (original_cat == "inPanel") {
+					new_blocks.push(this.duplicateBlock(block));
+					this.uniq_id_counter += 1;
+				}
+			}
+			return block;
+		});
+
+		blocks.push(...new_blocks);
+
+		this.setState({
+			...this.state,
+			blocks
+		});
+	}
+
+	/**
+	 * Adds a slide in the selected amp-carousel element.
+	 *
+	 * @param {*} e
+	 * @memberof SidePanel
+	 */
+	addSlide(e) {
+		var x = document.getElementById("3"); // Get the &lt;ul> element with id="myList"
+		x.removeChild(x.childNodes[0]);
+		var html_ = x.innerHTML;
+		html_ = html_.split("&lt;/div>")[0] + ('&lt;amp-carousel specName="AMP-CAROUSEL [type=carousel]" width="200" height="100" type="slides" role="region">&lt;amp-img src="https://amp.dev/static/samples/img/image1.jpg" width="auto" height="auto">&lt;/amp-img>&lt;amp-img src="https://amp.dev/static/samples/img/image2.jpg" width="auto" height="auto">&lt;/amp-img>&lt;amp-img src="https://amp.dev/static/samples/img/image2.jpg" width="auto" height="auto">&lt;/amp-img>&lt;/amp-carousel>') + "&lt;/div>";
+
+		x.innerHTML = html_;
+		// var x = document.getElementsByTagName("amp-carousel")[1];
+
+		// console.log(x);
+		// var node = x.firstElementChild.lastElementChild;
+		// console.log(node);
+		// x.firstElementChild.appendChild(node);
+		console.log(x);
+	}
+
+	/**
+	 * Customises the Style tab according to the block selected by the user.
+	 *
+	 * @param {*} e The clicked element
+	 * @param {*} t The block selected.
+	 * @memberof SidePanel
+	 */
+	onClickDiv(e, t) {
+		var x = document.getElementsByClassName("button_edit");
+		var i;
+		for (i = 0; i &lt; x.length; i++) {
+			x[i].style.display = "none";
+		}
+
+		x = document.getElementsByClassName("image_edit1");
+		for (i = 0; i &lt; x.length; i++) {
+			x[i].style.display = "none";
+		}
+
+		x = document.getElementsByClassName("image_edit2");
+		for (i = 0; i &lt; x.length; i++) {
+			x[i].style.display = "none";
+		}
+
+		x = document.getElementsByClassName("image_edit3");
+		for (i = 0; i &lt; x.length; i++) {
+			x[i].style.display = "none";
+		}
+
+		x = document.getElementsByClassName("sm_icon_edit");
+		for (i = 0; i &lt; x.length; i++) {
+			x[i].style.display = "none";
+		}
+
+		x = document.getElementsByClassName("gif_edit");
+		for (i = 0; i &lt; x.length; i++) {
+			x[i].style.display = "none";
+		}
+
+		x = document.getElementsByClassName("video_edit");
+		for (i = 0; i &lt; x.length; i++) {
+			x[i].style.display = "none";
+		}
+
+		x = document.getElementsByClassName("form_edit");
+		for (i = 0; i &lt; x.length; i++) {
+			x[i].style.display = "none";
+		}
+
+		if (t.hasOwnProperty('add_image') || t.hasOwnProperty('image_button_text') || t.hasOwnProperty('image_text') || t.hasOwnProperty('complicated') || t.hasOwnProperty('has_gif')) {
+			if (t.category == "inWorkArea") {
+				x = document.getElementsByClassName("image_edit1");
+				for (i = 0; i &lt; x.length; i++) {
+					x[i].style.display = "block";
+				}
+
+				x = document.getElementsByClassName("image_edit_fileInput1")[0];
+				x.id = "image_edit_fileInput1_" + t.uniq_id;
+
+				x = document.getElementsByClassName("image_edit_link1")[0];
+				x.id = "image_href1_" + t.uniq_id;
+				x.value = document.getElementById("image_image_edit_fileInput1_" + t.uniq_id).src;
+			}
+		}
+
+		if (t.hasOwnProperty('dual_img_text')) {
+			if (t.category == "inWorkArea") {
+				x = document.getElementsByClassName("image_edit1");
+				for (i = 0; i &lt; x.length; i++) {
+					x[i].style.display = "block";
+				}
+
+				x = document.getElementsByClassName("image_edit2");
+				for (i = 0; i &lt; x.length; i++) {
+					x[i].style.display = "block";
+				}
+
+				x = document.getElementsByClassName("image_edit_fileInput1")[0];
+				x.id = "image_edit_fileInput1_" + t.uniq_id;
+
+				x = document.getElementsByClassName("image_edit_link1")[0];
+				x.id = "image_href1_" + t.uniq_id;
+				x.value = document.getElementById("image_image_edit_fileInput1_" + t.uniq_id).src;
+
+				x = document.getElementsByClassName("image_edit_fileInput2")[0];
+				x.id = "image_edit_fileInput2_" + t.uniq_id;
+
+				x = document.getElementsByClassName("image_edit_link2")[0];
+				x.id = "image_href2_" + t.uniq_id;
+				x.value = document.getElementById("image_image_edit_fileInput2_" + t.uniq_id).src;
+			}
+		}
+
+		if (t.hasOwnProperty('trio_img_text')) {
+			if (t.category == "inWorkArea") {
+				x = document.getElementsByClassName("image_edit1");
+				for (i = 0; i &lt; x.length; i++) {
+					x[i].style.display = "block";
+				}
+
+				x = document.getElementsByClassName("image_edit2");
+				for (i = 0; i &lt; x.length; i++) {
+					x[i].style.display = "block";
+				}
+
+				x = document.getElementsByClassName("image_edit3");
+				for (i = 0; i &lt; x.length; i++) {
+					x[i].style.display = "block";
+				}
+
+				x = document.getElementsByClassName("image_edit_fileInput1")[0];
+				x.id = "image_edit_fileInput1_" + t.uniq_id;
+
+				x = document.getElementsByClassName("image_edit_link1")[0];
+				x.id = "image_href1_" + t.uniq_id;
+				x.value = document.getElementById("image_image_edit_fileInput1_" + t.uniq_id).src;
+
+				x = document.getElementsByClassName("image_edit_fileInput2")[0];
+				x.id = "image_edit_fileInput2_" + t.uniq_id;
+
+				x = document.getElementsByClassName("image_edit_link2")[0];
+				x.id = "image_href2_" + t.uniq_id;
+				x.value = document.getElementById("image_image_edit_fileInput2_" + t.uniq_id).src;
+
+				x = document.getElementsByClassName("image_edit_fileInput3")[0];
+				x.id = "image_edit_fileInput3_" + t.uniq_id;
+
+				x = document.getElementsByClassName("image_edit_link3")[0];
+				x.id = "image_href3_" + t.uniq_id;
+				x.value = document.getElementById("image_image_edit_fileInput3_" + t.uniq_id).src;
+			}
+		}
+
+		if (t.hasOwnProperty('has_button') || t.hasOwnProperty('image_button_text') || t.hasOwnProperty('complicated')) {
+			if (t.category == "inWorkArea") {
+				x = document.getElementsByClassName("button_edit");
+
+				for (i = 0; i &lt; x.length; i++) {
+					x[i].style.display = "block";
+				}
+
+				x = document.getElementsByClassName("button_edit_link")[0];
+				x.id = "btn_href_" + t.uniq_id;
+				x.value = document.getElementById("btn_btn_href_" + t.uniq_id).value;
+			}
+		}
+
+		if (t.hasOwnProperty('form')) {
+			if (t.category == "inWorkArea") {
+				x = document.getElementsByClassName("form_edit");
+
+				for (i = 0; i &lt; x.length; i++) {
+					x[i].style.display = "block";
+				}
+
+				x = document.getElementsByClassName("form_edit_link")[0];
+				x.id = "form_href_" + t.uniq_id;
+				x.value = document.getElementById("form_href_" + t.uniq_id).value;
+			}
+		}
+
+		if (t.hasOwnProperty('has_sm_icon')) {
+			if (t.category == "inWorkArea") {
+				x = document.getElementsByClassName("sm_icon_edit");
+
+				for (i = 0; i &lt; x.length; i++) {
+					x[i].style.display = "block";
+				}
+
+				x = document.getElementsByClassName("sm_icon_edit_link");
+				for (i = 0; i &lt; x.length; i++) {
+					var nm = x[i].name;
+
+					var el = document.getElementById("sm-icon-sm-href_" + nm + "_" + t.uniq_id);
+					x[i].id = "sm-href_" + nm + "_" + t.uniq_id;
+					x[i].value = el.value;
+					if (x[i].value == "undefined") {
+						x[i].value = "";
+					}
+					x[i].style.display = el.style.display;
+				}
+
+				x = document.getElementsByClassName("sm_icon_checkbox");
+				for (i = 0; i &lt; x.length; i++) {
+					var nm = x[i].name;
+					x[i].id = "sm-cbox_" + nm + "_" + t.uniq_id;
+					var el = document.getElementById("sm-icon-sm-href_" + nm + "_" + t.uniq_id);
+					if (el.style.display == "block") {
+						x[i].checked = "checked";
+					} else {
+						x[i].checked = "";
+					}
+				}
+			}
+		}
+
+		if (t.hasOwnProperty('has_video')) {
+			if (t.category == "inWorkArea") {
+				x = document.getElementsByClassName("video_edit");
+				for (i = 0; i &lt; x.length; i++) {
+					x[i].style.display = "block";
+				}
+				var el = document.getElementById("video_" + t.uniq_id);
+				x = document.getElementsByClassName("video_edit_link")[0];
+				x.id = "video_edit_" + t.uniq_id;
+				x.value = el.href;
+			}
+		}
+
+		if (t.category == "inWorkArea") {
+			x = document.getElementsByClassName("background_edit");
+
+			for (i = 0; i &lt; x.length; i++) {
+				x[i].style.display = "block";
+				x[i].id = "background_edit_" + t.uniq_id;
+			}
+
+			var id_color_picker = "background_edit_color_picker_" + t.uniq_id;
+			var color = document.getElementById(t.uniq_id).style.backgroundColor;
+			color = rgb2hex(color);
+			console.log(id_color_picker);
+			let color_picker = []
+			color_picker.push(&lt;div key={this.uniq_id_counter}>Color of the Block: &lt;ColorPickerComponent  value={color} className="background_edit_color_picker" id={id_color_picker} change={(e) => changeDivColor(e)}/>&lt;/div>);
+			this.setState({
+				...this.state,
+				color_picker
+			});
+			this.uniq_id_counter = this.uniq_id_counter + 1;
+		}
+	}
+
+	/**
+	 * Renders the side panel and adds all required elements in the work area.
+	 *
+	 * @return {*} 
+	 * @memberof SidePanel
+	 */
+	render() {
+
+		var blocks = {
+			inPanel: [],
+			inWorkArea: []
+		}
+
+		var color_picker = {
+			req: [],
+		}
+
+		this.state.color_picker.forEach((t) => {
+			color_picker["req"].push(t);
+		});
+
+
+		this.state.blocks.sort((first, second) => {
+			return first.pos_init_id - second.pos_init_id
+		})
+
+		this.state.blocks.sort((first, second) => {
+			return first.pos_fin_id - second.pos_fin_id
+		})
+
+
+		this.state.blocks.forEach((t) => {
+			let content = createBlock(t)
+			let html_rendering_code = (
+				&lt;div key={t.uniq_id} id={t.uniq_id}
+          onDragStart = {(e) => this.onDragStart(e, t.uniq_id)}
+          draggable
+          className="draggable"
+          style = {{backgroundColor: t.bgcolor}}
+          onClick = {(e) => this.onClickDiv(e,t)}>
+            {content}
+        &lt;/div>
+			);
+
+			blocks[t.category].push(html_rendering_code);
+		});
+
+		return (
+			&lt;div>
+            &lt;div className="col-sm-4 bg-dark" style={{float:'left', height: '735px'}}>
+        
+          &lt;ul className="nav nav-pills nav-justified">
+            &lt;li className="nav-item" onClick={changePanel.bind(this, "sty")}>
+              &lt;a className="nav-link" href="#">Style&lt;/a>
+            &lt;/li>
+            &lt;li className="nav-item" onClick={changePanel.bind(this, "blk")}>
+              &lt;a className="nav-link" href="#">Blocks&lt;/a>
+            &lt;/li>
+          &lt;/ul>
+
+          &lt;div className="panel bg-dark" id="elem" style={{color:"white",margin:'10px',padding:'10px',height: '555px', border: '2px solid white'}}>
+            Element
+          &lt;/div>
+          &lt;div className="panel bg-dark" id="sty" style={{color:"white",margin:'10px',padding:'10px',height: '555px', border: '2px solid white' ,'overflow-y':"scroll"}}>
+            
+            &lt;div className="background_edit" style={{display:"none"}}>
+              {color_picker.req}
+              &lt;br/>
+            &lt;/div>
+
+
+            &lt;div className="image_edit1" style={{display:"none"}}>
+                &lt;label for="link">Link for Image 1: &lt;/label>
+                  &lt;input type="text" className="image_edit_link1" id="image_href1" onChange={(e)=>onChangeImgGIFLink(e, "image_image_edit_fileInput1_")}/>
+                &lt;br/>
+                &lt;ButtonComponent cssClass='e-custom' onClick={(e)=>fileBtnClick(e,"image_edit_fileInput1" )}>Browse...&lt;/ButtonComponent>
+                    &lt;input className="image_edit_fileInput1" id="selectedFile1" type="file" name="file1" onChange={(e) => uploadImageGIF(e, "1")}/>
+                &lt;br/>
+                &lt;br/>
+            &lt;/div>
+
+            &lt;div className="image_edit2" style={{display:"none"}}>
+                &lt;label for="link">Link for Image 2: &lt;/label>
+                  &lt;input type="text" className="image_edit_link2" id="image_href2" onChange={(e)=>onChangeImgGIFLink(e, "image_image_edit_fileInput2_")}/>
+                &lt;br/>
+                &lt;ButtonComponent cssClass='e-custom' onClick={(e)=>fileBtnClick(e,"image_edit_fileInput2" )}>Browse...&lt;/ButtonComponent>
+                    &lt;input className="image_edit_fileInput2" id="selectedFile2" type="file" name="file2" onChange={(e) => uploadImageGIF(e, "2")}/>
+                &lt;br/>
+                &lt;br/>
+            &lt;/div>
+
+            &lt;div className="image_edit3" style={{display:"none"}}>
+                &lt;label for="link">Link for Image 3: &lt;/label>
+                  &lt;input type="text" className="image_edit_link3" id="image_href3" onChange={(e)=>onChangeImgGIFLink(e, "image_image_edit_fileInput3_")}/>
+                &lt;br/>
+                &lt;ButtonComponent cssClass='e-custom' onClick={(e)=>fileBtnClick(e,"image_edit_fileInput3" )}>Browse...&lt;/ButtonComponent>
+                    &lt;input className="image_edit_fileInput3" id="selectedFile3" type="file" name="file3" onChange={(e) => uploadImageGIF(e, "3")}/>
+                &lt;br/>
+                &lt;br/>
+            &lt;/div>
+
+            &lt;div className="video_edit" style={{display:"none"}} height="auto">Link:
+              &lt;input type="text" className="video_edit_link" id="video" onChange={(e)=>onChangeVideo(e)}/>
+            &lt;br/>
+            &lt;/div>
+
+            &lt;div className="amp_carousel_edit" height="auto" style={{display:"none"}}>
+
+            &lt;ButtonComponent onClick={(e)=>this.addSlide(e)}>Add Slide&lt;/ButtonComponent>
+            &lt;/div>
+
+
+            &lt;div className="button_edit" style={{display:"none"}}>&lt;label for="link">Link: &lt;/label>
+              &lt;input type="text" className="button_edit_link" id="btn_href" onChange={(e)=>onChangeLink(e)}/>
+              &lt;/div>
+
+            &lt;div className="form_edit" style={{display:"none"}}>&lt;label for="link">Action XHR: &lt;/label>
+              &lt;input type="text" className="form_edit_link" id="form_href" onChange={(e)=>onChangeFormLink(e)}/>
+            &lt;/div>
+
+            &lt;div id="Youtube" className="sm_icon_edit" style={{display:"none"}}>Youtube  &lt;input type="checkbox" className="sm_icon_checkbox" name="Youtube" id="sm-cbox_Youtube" onChange={(e)=>toggleCheckBoxSocialMedia(e)}/>&lt;br>&lt;/br>
+              &lt;input name="Youtube" type="text" className="sm_icon_edit_link" id="sm-href_Youtube" onChange={(e)=>onChangeLinkSocialMedia(e)}/>&lt;/div>
+              &lt;br>&lt;/br>
+            &lt;div id="Facebook" className="sm_icon_edit" style={{display:"none"}}>Facebook  &lt;input type="checkbox" className="sm_icon_checkbox" name="Facebook" id="sm-cbox_Facebook" onChange={(e)=>toggleCheckBoxSocialMedia(e)}/>&lt;br>&lt;/br>  
+              &lt;input name="Facebook" type="text" className="sm_icon_edit_link" id="sm-href_Facebook" onChange={(e)=>onChangeLinkSocialMedia(e)}/>&lt;/div>
+              &lt;br>&lt;/br>
+            &lt;div id="Twitter" className="sm_icon_edit" style={{display:"none"}}>Twitter  &lt;input type="checkbox" className="sm_icon_checkbox" name="Twitter" id="sm-cbox_Twitter" onChange={(e)=>toggleCheckBoxSocialMedia(e)}/>&lt;br>&lt;/br>  
+              &lt;input name="Twitter" type="text" className="sm_icon_edit_link" id="sm-href_Twitter" onChange={(e)=>onChangeLinkSocialMedia(e)}/>&lt;/div>
+              &lt;br>&lt;/br>
+            &lt;div id="Instagram" className="sm_icon_edit" style={{display:"none"}}>Instagram  &lt;input type="checkbox" className="sm_icon_checkbox" name="Instagram" id="sm-cbox_Instagram" onChange={(e)=>toggleCheckBoxSocialMedia(e)}/>&lt;br>&lt;/br>  
+              &lt;input name="Instagram" type="text" className="sm_icon_edit_link" id="sm-href_Instagram" onChange={(e)=>onChangeLinkSocialMedia(e)}/>&lt;/div>
+              &lt;br>&lt;/br>
+            &lt;div id="Telegram" className="sm_icon_edit" style={{display:"none"}}>Telegram  &lt;input type="checkbox" className="sm_icon_checkbox" name="Telegram" id="sm-cbox_Telegram" onChange={(e)=>toggleCheckBoxSocialMedia(e)}/>&lt;br>&lt;/br>  
+              &lt;input name="Telegram" type="text" className="sm_icon_edit_link" id="sm-href_Telegram" onChange={(e)=>onChangeLinkSocialMedia(e)}/>&lt;/div>
+              &lt;br>&lt;/br>
+            &lt;div id="Pinterest" className="sm_icon_edit" style={{display:"none"}}>Pinterest  &lt;input type="checkbox" className="sm_icon_checkbox" name="Pinterest" id="sm-cbox_Pinterest" onChange={(e)=>toggleCheckBoxSocialMedia(e)}/>&lt;br>&lt;/br>  
+              &lt;input name="Pinterest" type="text" className="sm_icon_edit_link" id="sm-href_Pinterest" onChange={(e)=>onChangeLinkSocialMedia(e)}/>&lt;/div>
+              &lt;br>&lt;/br>
+            &lt;div id="Whatsapp" className="sm_icon_edit" style={{display:"none"}}>Whatsapp  &lt;input type="checkbox" className="sm_icon_checkbox" name="Whatsapp" id="sm-cbox_Whatsapp" onChange={(e)=>toggleCheckBoxSocialMedia(e)}/>&lt;br>&lt;/br>  
+              &lt;input name="Whatsapp" type="text" className="sm_icon_edit_link" id="sm-href_Whatsapp" onChange={(e)=>onChangeLinkSocialMedia(e)}/>&lt;/div>
+              &lt;br>&lt;/br>
+            &lt;div id="LinkedIn" className="sm_icon_edit" style={{display:"none"}}>LinkedIn  &lt;input type="checkbox" className="sm_icon_checkbox" name="LinkedIn" id="sm-cbox_LinkedIn" onChange={(e)=>toggleCheckBoxSocialMedia(e)}/>&lt;br>&lt;/br>  
+              &lt;input name="LinkedIn" type="text" className="sm_icon_edit_link" id="sm-href_LinkedIn" onChange={(e)=>onChangeLinkSocialMedia(e)}/>&lt;/div>
+              &lt;br>&lt;/br>
+            
+          
+          &lt;/div>
+          
+          &lt;div className="panel bg-dark" id="blk" style={{color:"white",margin:'10px',padding:'10px',height: '675px','overflow-y':"scroll"}} 
+            onDragOver={(e)=>this.onDragOver(e)}>
+                      {blocks.inPanel}
+          &lt;/div>
+        &lt;/div>
+        
+        &lt;div className="col-sm-8 bg-secondary" style={{float:'left', height: '735px'}} >
+          &lt;div style={{backgroundColor:"white", margin:'20px', padding:'10px', height: '700px','overflow-y':"scroll"}} onDragOver={(e)=>this.onDragOver(e)}
+                    onDrop={(e)=>this.onDrop(e, "inWorkArea")} id="WorkArea">
+            {blocks.inWorkArea}
+          &lt;/div>
+        &lt;/div>
+
+      &lt;/div>
+
+		);
+	}
+}
+
+export default SidePanel;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Button.html">Button</a></li><li><a href="EditableText.html">EditableText</a></li><li><a href="EditableTextPlaceHolder.html">EditableTextPlaceHolder</a></li><li><a href="SidePanel.html">SidePanel</a></li><li><a href="SocialMediaIcon.html">SocialMediaIcon</a></li></ul><h3>Global</h3><ul><li><a href="global.html#changeDivColor">changeDivColor</a></li><li><a href="global.html#changePanel">changePanel</a></li><li><a href="global.html#clone">clone</a></li><li><a href="global.html#fileBtnClick">fileBtnClick</a></li><li><a href="global.html#onChangeFormLink">onChangeFormLink</a></li><li><a href="global.html#onChangeImgGIFLink">onChangeImgGIFLink</a></li><li><a href="global.html#onChangeLink">onChangeLink</a></li><li><a href="global.html#onChangeLinkSocialMedia">onChangeLinkSocialMedia</a></li><li><a href="global.html#onChangeVideo">onChangeVideo</a></li><li><a href="global.html#rgb2hex">rgb2hex</a></li><li><a href="global.html#toggleCheckBoxSocialMedia">toggleCheckBoxSocialMedia</a></li><li><a href="global.html#uploadImageGIF">uploadImageGIF</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Tue Dec 22 2020 01:39:02 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

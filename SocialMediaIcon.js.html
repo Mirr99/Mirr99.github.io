@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SocialMediaIcon.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SocialMediaIcon.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+
+/**
+ * Changes the links of the social media icon when the link in the input text box changes.
+ * 
+ * @param e
+ */
+export const onChangeLinkSocialMedia = (e) => {
+	var link = document.getElementById(e.target.id);
+	var sm_icon = document.getElementById('sm-icon-' + e.target.id);
+	sm_icon.value = link.value;
+	var sm_href = document.getElementById('href-sm-icon-' + e.target.id);
+	sm_href.href = link.value;
+}
+
+/**
+ * Toggles the display property of social media icons to allow the users the choice of their addition/removal.
+ * 
+ * @param e
+ */
+export const toggleCheckBoxSocialMedia = (e) => {
+	var cbox = document.getElementById(e.target.id);
+	var sm_icon = document.getElementById('sm-icon-sm-href_' + cbox.name + "_" + e.target.id.split("_")[2]);
+	if (cbox.checked) {
+		sm_icon.style.display = "block";
+		var sm_href = document.getElementById('sm-href_' + cbox.name + "_" + e.target.id.split("_")[2])
+		sm_href.style.display = "block";
+	} else {
+		sm_icon.style.display = "none";
+		var sm_href = document.getElementById('sm-href_' + cbox.name + "_" + e.target.id.split("_")[2])
+		sm_href.style.display = "none";
+	}
+}
+
+
+/**
+ * Represents a single social media icon.
+ *
+ * @class SocialMediaIcon
+ * @extends {React.Component}
+ */
+class SocialMediaIcon extends React.Component {
+
+	constructor() {
+		super(...arguments);
+		this.ID = "sm-icon";
+		this.type = "";
+		this.icon = "";
+		this.style = "";
+	}
+
+	/**
+	 * Open the social media link in a new window
+	 *
+	 * @memberof SocialMediaIcon
+	 */
+	btnClick() {
+		var x = document.getElementById(this.ID);
+		// console.log(x);
+		// console.log(x.value);
+		window.open(x.value);
+	}
+
+	/**
+	 * Renders the social media icon element with the appropriate icons and properties.
+	 *
+	 * @return {*} 
+	 * @memberof SocialMediaIcon
+	 */
+	render() {
+		this.ID = this.props.id;
+		this.type = this.props.type;
+		this.style = this.props.style;
+		if (this.type == "Youtube") {
+			this.icon = "https://firebasestorage.googleapis.com/v0/b/e-mail-builder.appspot.com/o/social_media%2Ficonfinder_1_Youtube_colored_svg_5296521.png?alt=media&amp;token=83b5dd78-5136-4164-8eef-e881742999a0"
+		}
+		if (this.type == "Facebook") {
+			this.icon = "https://firebasestorage.googleapis.com/v0/b/e-mail-builder.appspot.com/o/social_media%2Ficonfinder_circle-facebook__317752.png?alt=media&amp;token=d1e40afd-8236-40f7-abab-64307094bfd7"
+		}
+		if (this.type == "Twitter") {
+			this.icon = "https://firebasestorage.googleapis.com/v0/b/e-mail-builder.appspot.com/o/social_media%2Ficonfinder_twitter_317720.png?alt=media&amp;token=03998e92-f0e2-4086-8e99-1fd638cbb346"
+		}
+		if (this.type == "Instagram") {
+			this.icon = "https://firebasestorage.googleapis.com/v0/b/e-mail-builder.appspot.com/o/social_media%2Ficonfinder_62-instagram_4202090.png?alt=media&amp;token=b3f69630-ae8a-4e06-ba62-525ffe8a9ab7"
+		}
+		if (this.type == "Telegram") {
+			this.icon = "https://firebasestorage.googleapis.com/v0/b/e-mail-builder.appspot.com/o/social_media%2Ficonfinder_social-56_1591869.png?alt=media&amp;token=8df5b4dc-68b4-4935-89cb-915ceabc4a96"
+		}
+		if (this.type == "Pinterest") {
+			this.icon = "https://firebasestorage.googleapis.com/v0/b/e-mail-builder.appspot.com/o/social_media%2Ficonfinder_1_Pinterest_colored_svg_5296503.png?alt=media&amp;token=c409cc7f-6249-4e64-b1b2-7edf7d8dc64a"
+		}
+		if (this.type == "Whatsapp") {
+			this.icon = "https://firebasestorage.googleapis.com/v0/b/e-mail-builder.appspot.com/o/social_media%2Ficonfinder_Social-media_Whatsapp_4362952.png?alt=media&amp;token=7d4d0d0f-7d2e-4348-a545-7201d5742fe1"
+		}
+		if (this.type == "LinkedIn") {
+			this.icon = "https://firebasestorage.googleapis.com/v0/b/e-mail-builder.appspot.com/o/social_media%2Ficonfinder_Linkedin_4745729.png?alt=media&amp;token=53060879-66b3-44a0-a53e-2eb812a044fe"
+		}
+
+		this.a_id = "href-" + this.props.id;
+
+		return (&lt;div>
+			&lt;amp-img className = { this.type } src = { this.icon } onClick = { this.btnClick.bind(this) }
+			id = { this.props.id } value = "" height='32'  width='32' style={this.style}>
+			&lt;a href="" className = { this.type } id = { this.a_id } style={{height:"0", width:"0"}}>&lt;/a>
+			&lt;/amp-img>
+			&lt;/div>);
+	}
+}
+
+export default SocialMediaIcon;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Button.html">Button</a></li><li><a href="EditableText.html">EditableText</a></li><li><a href="EditableTextPlaceHolder.html">EditableTextPlaceHolder</a></li><li><a href="SocialMediaIcon.html">SocialMediaIcon</a></li></ul><h3>Global</h3><ul><li><a href="global.html#fileBtnClick">fileBtnClick</a></li><li><a href="global.html#onChangeFormLink">onChangeFormLink</a></li><li><a href="global.html#onChangeImgGIFLink">onChangeImgGIFLink</a></li><li><a href="global.html#onChangeLink">onChangeLink</a></li><li><a href="global.html#onChangeLinkSocialMedia">onChangeLinkSocialMedia</a></li><li><a href="global.html#onChangeVideo">onChangeVideo</a></li><li><a href="global.html#toggleCheckBoxSocialMedia">toggleCheckBoxSocialMedia</a></li><li><a href="global.html#uploadImageGIF">uploadImageGIF</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Tue Dec 22 2020 01:23:03 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
